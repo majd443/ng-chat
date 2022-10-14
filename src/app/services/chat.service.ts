@@ -10,7 +10,7 @@ export class ChatService {
   constructor(private _db: AngularFirestore) {}
 
   /**
-   * get rooms
+   * get rooms V
    * add room
    * get room messages
    * send message
@@ -18,15 +18,20 @@ export class ChatService {
    */
 
   public getRooms(): Observable<Array<IChatRoom>> {
-    return this._db.collection('rooms').snapshotChanges().pipe(map(snaps => {
-      return snaps.map(snap => {
-        const id = snap.payload.doc.id;
-        const data: IChatRoom = <IChatRoom> snap.payload.doc.data();
-        return <IChatRoom> {
-          ...data,
-          id,
-        }
-      })
-    }))
+    return this._db
+      .collection('rooms')
+      .snapshotChanges()
+      .pipe(
+        map((snaps) => {
+          return snaps.map((snap) => {
+            const id = snap.payload.doc.id;
+            const data: IChatRoom = <IChatRoom>snap.payload.doc.data();
+            return <IChatRoom>{
+              ...data,
+              id,
+            };
+          });
+        })
+      );
   }
 }
