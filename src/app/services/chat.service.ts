@@ -12,7 +12,7 @@ export class ChatService {
   /**
    * get rooms V
    * add room
-   * get room messages
+   * get room messages V
    * send message
    * delete room
    */
@@ -45,5 +45,13 @@ export class ChatService {
         }
       })
     }))
+  }
+
+
+  public addRoom(roomName: string, userId: string): void {
+    this._db.collection("rooms").add({
+      roomName,
+      createdUserId: userId,
+    })
   }
 }
