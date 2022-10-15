@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IChatRoom } from '../models';
+import { IChatRoom, IMessage } from '../models';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { map, Observable } from 'rxjs';
 
@@ -33,5 +33,17 @@ export class ChatService {
           });
         })
       );
+  }
+
+  public getRoomMessages(roomId: string): Observable<Array<IMessage>> {
+    return this._db.collection('rooms').doc(roomId).collection("messages").snapshotChanges().pipe(map(messages => {
+      return messages.map(message => {
+        const data: IMessage = <IMessage> message.payload.doc.data();
+        return {
+          ...data,
+          id: message.payload.doc.id
+        }
+      })
+    }))
   }
 }
