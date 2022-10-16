@@ -13,6 +13,9 @@
 
     <ng-template #loggedIn>
       <button mat-raised-button (click)="signOut()">Logout</button>
+      <a class="header__link" [routerLink]="['/chat']" routerLinkActive="router-link-active">
+        Chat
+      </a>
     </ng-template>
   </mat-toolbar>
 </div>
