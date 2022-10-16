@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
   ActivatedRoute,
+  ActivationEnd,
   NavigationEnd,
   Router,
   RouterEvent,
@@ -21,7 +22,8 @@ export class ChatContainerComponent implements OnInit, OnDestroy {
   private userId: string = '';
   private subscription: Subscription = new Subscription();
   public rooms$: Observable<Array<IChatRoom>>;
-  public messages$: Observable<Array<IMessage>>;
+  public messages$?: Observable<Array<IMessage>>;
+  private roomId?: string;
 
   constructor(
     private auth: AuthService,
@@ -31,11 +33,10 @@ export class ChatContainerComponent implements OnInit, OnDestroy {
     public dialog: MatDialog
   ) {
     this.rooms$ = chatService.getRooms();
-
-    const roomId: string = activatedRoute.snapshot.url[1].path;
-
-    this.messages$ = chatService.getRoomMessages(roomId);
-    console.log('room id', roomId);
+    if (activatedRoute.snapshot.url.length > 1) {
+      this.roomId = activatedRoute.snapshot.url[1].path;
+      this.messages$ = chatService.getRoomMessages(this.roomId);
+    }
 
     this.subscription.add(
       router.events
@@ -59,6 +60,14 @@ export class ChatContainerComponent implements OnInit, OnDestroy {
           this.userId = user.uid;
         })
     );
+    this.subscription.add(
+      this.router.events
+        .pipe(filter((routerEvent) => routerEvent instanceof ActivationEnd))
+        .subscribe((data) => {
+          const routeEvent = data as ActivationEnd;
+          this.roomId = routeEvent.snapshot.paramMap.get('roomId') || '';
+        })
+    );
   }
 
   ngOnDestroy(): void {
@@ -78,5 +87,11 @@ export class ChatContainerComponent implements OnInit, OnDestroy {
 
   public onAddRoom(roomName: string, userId: string) {
     this.chatService.addRoom(roomName, userId);
+  }
+
+  public onSendMessage(message: string): void {
+    if (this.userId && this.roomId) {
+      this.chatService.sendMessage(this.userId, message, this.roomId);
+    }
   }
 }
