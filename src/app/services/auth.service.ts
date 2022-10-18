@@ -17,6 +17,7 @@ export class AuthService {
     false
   );
   private userDetails$: Subject<User> = new Subject<User>();
+  private userId: string = ""
 
   constructor(
     private afs: AngularFirestore,
@@ -34,6 +35,7 @@ export class AuthService {
         const userString: string = JSON.stringify(user);
         localStorage.setItem('user', userString);
         this.isLoggedIn$.next(true);
+        this.userId = user.uid
       } else {
         localStorage.removeItem('user');
         this.isLoggedIn$.next(false);
@@ -84,5 +86,9 @@ export class AuthService {
 
   public getUserData(): Observable<User> {
     return this.userDetails$.asObservable()
+  }
+
+  public getUserId(): string {
+    return this.userId;
   }
 }
